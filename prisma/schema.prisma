@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String          @id @unique
+  username              String          @unique
+  firstName             String
+  dob                   DateTime?
+  age                   Int?
+  gender                Gender?
+  about                 String?
+  profilePhoto          String?
+  photos                String[]
+  isVerified            Boolean         @default(false)
+  likesYou              String[]
+  matches               Matches[]       @relation("UserMatches")
+  balance               Int             @default(100)
+  gifts                 Int             @default(0)
+  isPremium             Boolean         @default(false)
+  premiumMonths         PremiumMonths?  @default(NONE)
+  premiumExpirationDate DateTime?
+  address               Address?        @relation(fields: [addressId], references: [id])
+  addressId             String?
+  searchSetting         SearchSetting?  @relation(fields: [searchSettingId], references: [id])
+  searchSettingId       String?
+  lastSeen              DateTime?       @default(now())
+  UserResponse          UserResponse[]
+  stories               Story[]         @relation("UserStories")
+  StoryReaction         StoryReaction[]
+
+  @@index([gender, age]) // Composite index on gender and age for search queries
+}
+
+model Address {
+  id      String  @id @unique @default(uuid())
+  line1   String?
+  line2   String?
+  city    String?
+  state   String?
+  country String?
+  zip     String?
+
+  User User[]
+
+  @@index([city, state, country]) // Composite index on city, state, and country for quick lookup
+}
+
+model Matches {
+  id                String   @id @unique @default(uuid())
+  userId            String
+  matchedUserId     String // This is the ID of the user they matched with
+  matchedUsername   String
+  firstname         String
+  matchedProfilePic String
+  createdAt         DateTime @default(now())
+
+  // The user who this match belongs to
+  User User @relation("UserMatches", fields: [userId], references: [id])
+
+  @@index([id])
+}
+
+model SearchSetting {
+  id       String  @id @unique @default(uuid())
+  gender   Gender?
+  age      Int?
+  location String?
+
+  User User[]
+}
+
+model Question {
+  id        Int      @id @default(autoincrement())
+  category  String
+  question  String
+  createdAt DateTime @default(now())
+
+  UserResponse UserResponse[]
+}
+
+model UserResponse {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  questionId Int
+  response   String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+}
+
+model Story {
+  id        String   @id @unique @default(uuid())
+  userId    String
+  imgUrl    String
+  content   String?
+  createdAt DateTime @default(now())
+
+  user          User            @relation("UserStories", fields: [userId], references: [id])
+  StoryReaction StoryReaction[]
+
+  @@index([createdAt]) // Index on expiresAt for quick lookup of expiring stories
+}
+
+model StoryReaction {
+  id        String         @id @unique @default(uuid())
+  userId    String
+  storyId   String
+  reaction  StoryReactions
+  createdAt DateTime       @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  story Story @relation(fields: [storyId], references: [id])
+
+  @@unique([userId, storyId]) // Ensures a user can only react once per story
+}
+
+enum PremiumMonths {
+  // ONE_MONTH
+  NONE
+  THREE_MONTHS
+  SIX_MONTHS
+  TWELVE_MONTHS
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum StoryReactions {
+  FIRE
+  LAUGH
+  LOVE
+  CRY
+  MIND_BLOWING
+}

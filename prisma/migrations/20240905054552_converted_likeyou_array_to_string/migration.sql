@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "likesYou" SET DATA TYPE TEXT[];
