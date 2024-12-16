@@ -95,7 +95,7 @@ export enum PublishStorySetting {
 }
 
 export enum VipPlansPrices {
-  GOLD = "1000000",
+  GOLD =   "10000000",
   SILVER = "500000000",
   BRONZE = "100000000",
 }
