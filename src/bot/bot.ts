@@ -101,7 +101,7 @@ class TelegramBot {
             firstName: first_name,
           });
       
-          await ctx.reply("You're all set! Let the journey begin! 🚀");
+          await ctx.reply("NOTE: The profiles you will receive are just for demo purposes.");
         } catch (error:any) {
           if (error.response && error.response.error_code === 403) {
             console.error("Bot was blocked by the user, cannot send messages:", error);
