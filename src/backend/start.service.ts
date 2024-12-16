@@ -218,7 +218,7 @@ class StartService {
         ),
       ],
     ]);
-
+  
     if (randomRecommendation.profilePhoto) {
       await ctx.replyWithPhoto(
         {
