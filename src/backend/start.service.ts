@@ -158,6 +158,8 @@ class StartService {
     const recommendations = await this.getRecommendations(userData);
     await this.cacheRecommendations(userId, recommendations);
     console.log("fetching and caching recommendations");
+    console.log({recommendations});
+    
     
     return recommendations;
   }
